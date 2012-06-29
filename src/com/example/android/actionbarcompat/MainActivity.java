@@ -25,8 +25,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,166 +36,176 @@ import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity implements CordovaInterface{
-    private boolean mAlternateTitle = false;
-    private boolean bound;
-    private boolean volumeupBound;
-    private boolean volumedownBound;
-    
-    String TAG = "MainActivity-ActionBarTest";
-    private IPlugin activityResultCallback;
-    private Object activityResultKeepRunning;
-    private Object keepRunning;
+public class MainActivity extends ActionBarActivity implements CordovaInterface {
+	private boolean mAlternateTitle = false;
+	private boolean bound;
+	private boolean volumeupBound;
+	private boolean volumedownBound;
 
-    CordovaWebView mainView;
-    
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
-        mainView =  (CordovaWebView) findViewById(R.id.mainView);
-        mainView.loadUrl("file:///android_asset/www/index.html");
+	String TAG = "MainActivity-ActionBarTest";
+	private IPlugin activityResultCallback;
+	private Object activityResultKeepRunning;
+	private Object keepRunning;
 
-/*
-        findViewById(R.id.toggle_title).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mAlternateTitle) {
-                    setTitle(R.string.app_name);
-                } else {
-                    setTitle(R.string.alternate_title);
-                }
-                mAlternateTitle = !mAlternateTitle;
-            }
-        });
-        */
-    }
+	CordovaWebView mainView;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.main, menu);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        // Calling super after populating the menu is necessary here to ensure that the
-        // action bar helpers have a chance to handle this event.
-        return super.onCreateOptionsMenu(menu);
-    }
+		mainView = (CordovaWebView) findViewById(R.id.mainView);
+		mainView.loadUrl("file:///android_asset/www/index.html");
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Toast.makeText(this, "Tapped home", Toast.LENGTH_SHORT).show();
-                break;
+		/*
+		 * findViewById(R.id.toggle_title).setOnClickListener(new
+		 * View.OnClickListener() {
+		 * 
+		 * @Override public void onClick(View view) { if (mAlternateTitle) {
+		 * setTitle(R.string.app_name); } else {
+		 * setTitle(R.string.alternate_title); } mAlternateTitle =
+		 * !mAlternateTitle; } });
+		 */
+	}
 
-            case R.id.menu_refresh:
-                Toast.makeText(this, "Fake refreshing...", Toast.LENGTH_SHORT).show();
-                getActionBarHelper().setRefreshActionItemState(true);
-                getWindow().getDecorView().postDelayed(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                getActionBarHelper().setRefreshActionItemState(false);
-                            }
-                        }, 1000);
-                break;
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.main, menu);
 
-            case R.id.menu_search:
-                Toast.makeText(this, "Tapped search", Toast.LENGTH_SHORT).show();
-                break;
+		// Calling super after populating the menu is necessary here to ensure
+		// that the
+		// action bar helpers have a chance to handle this event.
+		return super.onCreateOptionsMenu(menu);
+	}
 
-            case R.id.menu_share:
-                Toast.makeText(this, "Tapped share", Toast.LENGTH_SHORT).show();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    
-    /**
-     * Override the backbutton.
-     *
-     * @param override
-     */
-    public void bindBackButton(boolean override) {
-        this.bound = override;
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			Toast.makeText(this, "Tapped home", Toast.LENGTH_SHORT).show();
+			break;
 
-    /**
-     * Determine of backbutton is overridden.
-     *
-     * @return
-     */
-    public boolean isBackButtonBound() {
-        return this.bound;
-    }
+		case R.id.menu_refresh:
+			Toast.makeText(this, "Fake refreshing...", Toast.LENGTH_SHORT)
+					.show();
+			getActionBarHelper().setRefreshActionItemState(true);
+			getWindow().getDecorView().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					getActionBarHelper().setRefreshActionItemState(false);
+				}
+			}, 1000);
+			break;
 
-    public void bindButton(String button, boolean override) {
-      // TODO Auto-generated method stub
-      if (button.compareTo("volumeup")==0) {
-        this.volumeupBound = override;
-      }
-      else if (button.compareTo("volumedown")==0) {
-        this.volumedownBound = override;
-      }
-    }
+		case R.id.menu_search:
+			Toast.makeText(this, "Tapped search", Toast.LENGTH_SHORT).show();
+			break;
 
-    @Override
-    public Activity getActivity() {
-        return this;
-    }
+		case R.id.menu_share:
+			Toast.makeText(this, "Tapped share", Toast.LENGTH_SHORT).show();
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-    /**
-     * Called when a message is sent to plugin.
-     *
-     * @param id            The message id
-     * @param data          The message data
-     * @return              Object or null
-     */
-    public Object onMessage(String id, Object data) {
-        LOG.d(TAG, "onMessage(" + id + "," + data + ")");
-        if ("exit".equals(id)) {
-            super.finish();
-        }
-        return null;
-    }
-    
+	/**
+	 * Override the backbutton.
+	 * 
+	 * @param override
+	 */
+	public void bindBackButton(boolean override) {
+		Log.w("back button override", "override");
+		this.bound = override;
+	}
 
-    @Override
-    public void setActivityResultCallback(IPlugin plugin) {
-        this.activityResultCallback = plugin;        
-    }
-    /**
-     * Launch an activity for which you would like a result when it finished. When this activity exits, 
-     * your onActivityResult() method will be called.
-     *
-     * @param command           The command object
-     * @param intent            The intent to start
-     * @param requestCode       The request code that is passed to callback to identify the activity
-     */
-    public void startActivityForResult(IPlugin command, Intent intent, int requestCode) {
-        this.activityResultCallback = command;
-        this.activityResultKeepRunning = this.keepRunning;
+	/**
+	 * Determine of backbutton is overridden.
+	 * 
+	 * @return
+	 */
+	public boolean isBackButtonBound() {
+		return this.bound;
+	}
 
-        // If multitasking turned on, then disable it for activities that return results
-        if (command != null) {
-            this.keepRunning = false;
-        }
+	public void bindButton(String button, boolean override) {
+		// TODO Auto-generated method stub
+		if (button.compareTo("volumeup") == 0) {
+			this.volumeupBound = override;
+		} else if (button.compareTo("volumedown") == 0) {
+			this.volumedownBound = override;
+		}
+	}
 
-        // Start activity
-        super.startActivityForResult(intent, requestCode);
-    }
+	@Override
+	public Activity getActivity() {
+		return this;
+	}
 
-    @Override
-    public void cancelLoadUrl() {
-        // This is a no-op.
-    }
-    
-    public void onDestroy()
-    {
-        super.onDestroy();
-        if (mainView.pluginManager != null) {
-            mainView.pluginManager.onDestroy();
-        }
-    }
+	/**
+	 * Called when a message is sent to plugin.
+	 * 
+	 * @param id
+	 *            The message id
+	 * @param data
+	 *            The message data
+	 * @return Object or null
+	 */
+	public Object onMessage(String id, Object data) {
+		LOG.d(TAG, "onMessage(" + id + "," + data + ")");
+		if ("exit".equals(id)) {
+			super.finish();
+		}
+		return null;
+	}
+
+	@Override
+	public void setActivityResultCallback(IPlugin plugin) {
+		this.activityResultCallback = plugin;
+	}
+
+	/**
+	 * Launch an activity for which you would like a result when it finished.
+	 * When this activity exits, your onActivityResult() method will be called.
+	 * 
+	 * @param command
+	 *            The command object
+	 * @param intent
+	 *            The intent to start
+	 * @param requestCode
+	 *            The request code that is passed to callback to identify the
+	 *            activity
+	 */
+	public void startActivityForResult(IPlugin command, Intent intent,
+			int requestCode) {
+		this.activityResultCallback = command;
+		this.activityResultKeepRunning = this.keepRunning;
+
+		// If multitasking turned on, then disable it for activities that return
+		// results
+		if (command != null) {
+			this.keepRunning = false;
+		}
+
+		// Start activity
+		super.startActivityForResult(intent, requestCode);
+	}
+
+	@Override
+	public void cancelLoadUrl() {
+		// This is a no-op.
+	}
+
+	public void onDestroy() {
+		super.onDestroy();
+		if (mainView.pluginManager != null) {
+			mainView.pluginManager.onDestroy();
+		}
+	}
+
+	@Override
+	public Context getContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
